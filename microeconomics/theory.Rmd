@@ -1,0 +1,149 @@
+---
+title: "Microeconomía"
+author: "Anderson Acuña"
+date: "2024-10-15"
+output: 
+  html_document: 
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Mercado
+
+Un sitio indeterminado donde compradores y vendedores se reunen a intercambiar 
+bienes y servicios a un determinado precio.
+
+## Fuerzas que conforman el mercado
+
+### Oferta
+
+Desde el punto de vista del **productor** tenemos los siguientes determinantes 
+para la oferta:
+
+1. Costos.
+2. Tecnología.
+3. Número de competidores.
+4. Precios de los bienes sustitutos.
+5. Precio de los bienes complementarios.
+6. Gustos.
+
+#### Costos
+
+Se determina de acuerdo al sistema de costeo utilizado en la empresa. Para el 
+caso del **Sistema de costeo variable** tenemos la siguiente clasificación:
+
++ Costos fijos: Aquel que **no varia** con el volumen de producción. Por 
+ejemplo: Arriendo de una bodega, salarios.
++ Costos variables: Aquel que **varia** con el volumen de producción. Por 
+ejemplo: Materia prima directa.
+
+El **Margen de Contribución** es la cantidad de dinero que el productor obtiene 
+en el producto sobre el costo de producción:
+
+$$
+MdeC = P_{vu} - C_{vu}
+$$
+
++ $MdeC$ = Margen de contribución.
++ $P_{vu}$ = Precio de cada unidad del producto.
++ $C_{vu}$ = Costo de cada unidad del producto.
+
+La **Capacidad de Producción** es un valor en unidades de producto que la 
+empresa tiene la capacidad de producir.
+
+Los **Costos fijos totales** ($C_{ft}$) son todos los gastos y costos menos la materia 
+prima directa.
+
+El **Punto de equilibrio** se define como el valor de los costos fijos totales 
+dividido entre el margen de contribución. Este punto es el valor de dinero 
+mínimo que la empresa debe obtener para compensar sus costos fijos y no tener 
+pérdidas.
+
+$$
+PdeE = \frac{C_{ft}}{MdeC} \\
+PdeE = \frac{C_{ft}}{P_{vu} - C_{vu}}
+$$
+
+Una parte importante es el **definir el precio de venta**, para esto se tienen 
+2 estrategias:
+
+1. Definir un porcentaje sobre el costo:
+  $$
+  P_{vu} = C_{vu} * (P_g + 1)
+  $$
+  Donde $P_g$ es el porcentaje de ganancia deseado, que está entre 0 y 1.
+2. Definir un porcentaje sobre el precio de venta:
+  $$
+  P_{vu} = \frac{C_{vu}}{(1 - P_g)}
+  $$
+
+Definimos algunas funciones útlies sobre los conceptos:
+```{r}
+pvu_calc <- function(strategy, cvu, pg) {
+  pvu <- cvu
+  if (strategy == 1) {
+    pvu <- cvu * (pg + 1)
+  } else {
+    pvu <- cvu / (1 - pg)
+  }
+  
+  return(pvu)
+}
+
+mdec_calc <- function(pvu, cvu) {
+  return(pvu - cvu)
+}
+```
+
+
+Supongamos una empresa con la siguiente conformación:
+```{r}
+product <- c("Camisas", "Pantalones", "Tennis", "Correas", "Medias")
+amount_product <- c(500, 350, 400, 100, 350)
+cvu <- c(100000, 300000, 500000, 80000, 30000)
+cft <- 70000000
+
+pvu <- c(pvu_calc(2, cvu[1], 0.3), 
+         pvu_calc(1, cvu[2], 0.3), 
+         pvu_calc(1, cvu[3], 0.3), 
+         pvu_calc(1, cvu[4], 0.3), 
+         pvu_calc(1, cvu[5], 0.3))
+
+participation <- c()
+for (iter in 1:length(amount_product)) {
+  participation <- c(participation, amount_product[iter] / sum(amount_product))
+}
+
+mdec_unitary <- c()
+for (iter in 1:length(amount_product)) {
+  mdec_unitary <- c(mdec_unitary, mdec_calc(pvu[iter], cvu[iter]))
+}
+
+mdec_mean <- mdec_unitary * participation
+
+pde <- sum(mdec_mean) / cft
+
+minimun_units <- participation * pde
+```
+
+Quedando los datos así:
+```{r}
+business_costs <- data.frame(productos = product, 
+                             cantidad = amount_product, 
+                             Cvu = cvu, 
+                             Pvu = pvu, 
+                             participacion = participation, 
+                             MdeC_unitario = mdec_unitary, 
+                             MdeC_promedio = mdec_mean, 
+                             unidades_minimas = minimun_units)
+
+head(business_costs)
+```
+
+
+
+
+
